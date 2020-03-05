@@ -26,20 +26,18 @@ PLUGIN_SOURCES := onsetsUA.cpp mf0UA.cpp plugins.cpp
 #
 PLUGIN_HEADERS := onsetsUA.h mf0UA.h
 
-# Libraries required for the plugins. fftw can be linked as static or dynamic library
-PLUGIN_LIBS     = -lfftw3-3
+# Libraries required for the plugins
+PLUGIN_LIBS     = 
 
-# Edit this to the location of the Vamp plugin SDK compiled for MinGW, FFTW and BOOST
+# Edit this to the location of the Vamp plugin SDK compiled for MinGW
 VAMP_SDK_DIR :=../vamp-plugin-sdk-2.6-mingw
 SRC_DIR :=./src
-FFTW_DIR:=../fftw-3.3.4-dll64 # downloaded from http://www.fftw.org/install/windows.html -> ftp://ftp.fftw.org/pub/fftw/fftw-3.3.4-dll64.zip
-BOOST_DIR:=../boostpath
 
 ## MinGW compilation using Linux as the base platform
 CXX := x86_64-w64-mingw32-g++
-CXXFLAGS := -O2 -I$(VAMP_SDK_DIR) -I$(SRC_DIR) -I$(FFTW_DIR) -I$(BOOST_DIR) -Wall
+CXXFLAGS := -O2 -I$(VAMP_SDK_DIR) -I$(SRC_DIR) -Wall
 PLUGIN_EXT := .dll
-LDFLAGS := -shared $(VAMP_SDK_DIR)/libvamp-sdk.a -L$(FFTW_DIR)
+LDFLAGS := -shared $(VAMP_SDK_DIR)/libvamp-sdk.a
 
 ##  All of the above
 

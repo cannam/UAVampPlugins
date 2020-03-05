@@ -21,14 +21,19 @@ This onset detection system is distributed in the hope that it will be useful,
 
 #include "myfft.h"
 #include "params.h"
+
+#include <vamp-sdk/FFT.h>
+
 #include <iostream>
+#include <mutex>
+#include <map>
+#include <memory>
+#include <vector>
 
 using namespace std;
+using Vamp::FFTReal;
 
-static double *rdata = NULL, *idata = NULL;
-static fftw_plan rplan, iplan;
-static int last_fft_size = 0;
-static Float w_rate = (TWO_PI / 22050.0);
+static const Float w_rate = (TWO_PI / 22050.0);
 
 
 /*--------------------------------------------
@@ -72,33 +77,45 @@ void Hanning(Float *window, int size) {
 
 /*--------------------------------------------
 
- Apply FFTW
+ Apply FFT
 
 ---------------------------------------------*/
 
-void mus_fftw(Float *rl, int n, int dir)
+void mus_fft(Float *rl, int n)
 {
-  int i;
-  if (n != last_fft_size)
-    {
-      if (rdata) {fftw_free(rdata); fftw_free(idata); fftw_destroy_plan(rplan); }
-      rdata = (double *)fftw_malloc(n * sizeof(double));
-      idata = (double *)fftw_malloc(n * sizeof(double));
-      rplan = fftw_plan_r2r_1d(n, rdata, idata, FFTW_R2HC, FFTW_ESTIMATE); 
-  //    iplan = fftw_plan_r2r_1d(n, rdata, idata, FFTW_HC2R, FFTW_ESTIMATE);
-      last_fft_size = n;
+    static map<int, shared_ptr<FFTReal>> ffts;
+    static vector<double> inbuf;
+    static vector<double> outbuf;
+    static mutex mut;
+    lock_guard<mutex> guard(mut);
+
+    if (ffts.find(n) == ffts.end()) {
+        ffts[n] = make_shared<FFTReal>(n);
+        if (n > int(inbuf.size())) {
+            inbuf.resize(n);
+            outbuf.resize(n+2);
+        }
     }
-  memset((void *)idata, 0, n * sizeof(double));
-  for (i = 0; i < n; i++) {rdata[i] = rl[i];}
-  if (dir != -1)
-    fftw_execute(rplan);
-  else fftw_execute(iplan);
-  for (i = 0; i < n; i++) rl[i] = idata[i];
+
+    for (int i = 0; i < n; ++i) {
+        inbuf[i] = rl[i];
+    }
+
+    ffts.at(n)->forward(inbuf.data(), outbuf.data());
+
+    // Output is expected to match FFTW's R2HC format
+    
+    for (int i = 0; i <= n/2; ++i) {
+        rl[i] = outbuf[i*2];
+    }
+    for (int i = 1; i < n/2; ++i) {
+        rl[n-i] = outbuf[i*2+1];
+    }
 }
 
 /*---------------------------------------------
  
- Spectrum calculation, using mus_fftw
+ Spectrum calculation, using mus_fft
 
 ---------------------------------------------*/
 
@@ -124,7 +141,7 @@ void fourier_spectrum(Float *sf, Float *fft_data, int fft_size, int data_len, Fl
       memset((void *)(fft_data + data_len), 0, (fft_size - data_len) * sizeof(Float));
 
   int j;
-  mus_fftw(fft_data, fft_size, 1);
+  mus_fft(fft_data, fft_size);
 
   fft_data[0] = fabs(fft_data[0]);
   fft_data[fft_size / 2] = fabs(fft_data[fft_size / 2]);

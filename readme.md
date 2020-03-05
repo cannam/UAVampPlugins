@@ -13,8 +13,7 @@ IST-2007-216886.
 
 ## Dependencies ##
 
-The VAMP plugin SDK requires libsndfile to be compiled. Besides, the
-UAPlugins require boost and fftw3 libraries.
+The VAMP plugin SDK requires libsndfile to be compiled.
 
 ## Compilation ##
 

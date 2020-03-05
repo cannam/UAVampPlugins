@@ -505,7 +505,7 @@ mapa4 MF0::CleanFrameCombinations(vcombinations &vc) // by reference for efficie
             if (printlog) {
                 for (int k=0; k<(int)(it->first).size(); k++) 
                   cout << it->first[k] << " ";
-                  cout << endl;
+                cout << endl;
             }
             // With the same pitches, keep only the combination with highest salience
             if (itvc->salience > it->second) 

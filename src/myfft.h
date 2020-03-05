@@ -21,7 +21,6 @@ This onset detection system is distributed in the hope that it will be useful,
 
 #ifndef MYFFT
 #define MYFFT
-#include <fftw3.h>
 #include <math.h>
 #include <string.h>
 
@@ -40,7 +39,7 @@ Float mus_radians_to_degrees(Float rads);
 Float mus_db_to_linear(Float x);
 
 void Hanning(Float *win, int n);
-void mus_fftw(Float *rl, int n, int dir);
+void mus_fft(Float *rl, int n, int dir);
 void fourier_spectrum(Float *sf, Float *fft_data, int fft_size, int data_len, Float *window, int win_len);
 bool isNaN(double val);
 
