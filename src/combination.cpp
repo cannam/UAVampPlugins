@@ -96,9 +96,9 @@ vcombinations GetAllCombinations(mapa2 candidates,int maxpolyphony)
 	int ncand=candidates.size();
 	
 	if (ncand!=0) {	
-		double r[ncand];
+		vector<double> r(ncand);
 		for (int i=1; i<=(int)candidates.size() && i<=maxpolyphony; i++) 
-			getCombination(vcand,0,r,i,0,ncand-i,combinations);
+			getCombination(vcand,0,r.data(),i,0,ncand-i,combinations);
 	}
 	return combinations;
 }

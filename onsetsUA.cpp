@@ -243,8 +243,8 @@ OnsetsUA::FeatureSet
 OnsetsUA::process(const float *const *inputBuffers, Vamp::RealTime timestamp)
 {
     FeatureSet returnFeatureSet;
-    double input[spectruminfo.winsize];
-    double spectrum[spectruminfo.winsize+1];
+    vector<double> input(spectruminfo.winsize);
+    vector<double> spectrum(spectruminfo.winsize+1);
 
     // Copy input data and complete with zeroes for zero padding
     for (int i=0; i<(int)m_blockSize;i++)
@@ -253,11 +253,11 @@ OnsetsUA::process(const float *const *inputBuffers, Vamp::RealTime timestamp)
         input[i]=0.0;
 
     // FFT computation
-    fourier_spectrum(input, spectrum, spectruminfo.winsize, spectruminfo.winsize, window, spectruminfo.N);
+    fourier_spectrum(input.data(), spectrum.data(), spectruminfo.winsize, spectruminfo.winsize, window, spectruminfo.N);
     
     // One-semitone bands computation
     vector<double> currentFrameBands(spectruminfo.numbands);
-    OnsetDetection::computebands(spectrum, spectralbands, currentFrameBands, spectruminfo.winsize / 2, spectruminfo.maxbandsval);
+    OnsetDetection::computebands(spectrum.data(), spectralbands, currentFrameBands, spectruminfo.winsize / 2, spectruminfo.maxbandsval);
     
     // Onset detection function. It is stored as a feature, and also in the vector odf for final postprocessing
     if (!firstframe)

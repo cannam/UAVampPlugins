@@ -76,7 +76,7 @@ double spectralpattern::ComputeCentroid()
 
 double spectralpattern::ComputeSalience()
 {
-        double normalizedvalues[numharmonics];
+	vector<double> normalizedvalues(numharmonics);
 
         int shift=(int)floor(tamgaussian/2.0);
         sharpness=0;
